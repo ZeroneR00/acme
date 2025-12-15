@@ -4,11 +4,36 @@ import Link from 'next/link';
 import styles from '@/app/ui/home.module.css';
 import { lusitana } from '@/app/ui/fonts';
 import Image from 'next/image';
+import { auth } from '@/auth';
+import { signOut } from '@/auth';
+import { PowerIcon } from '@heroicons/react/16/solid';
 
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth();
+  const userName = session?.user?.name || 'User';
+  console.log('Session:', session);
+
   return (
     <main className="flex min-h-screen flex-col p-6">
+      <h1 className="text-2xl font-bold mb-4">
+        {/* Welcome back, {userName}! 👋 */}
+      </h1>
+      {/* ==Форма для "выхода" */}
+
+      <form
+        action={async () => {
+          'use server';
+          await signOut({ redirectTo: '/' });
+        }}
+      >
+        <button>
+          <PowerIcon className="w-6" />
+          <div>Sign Out</div>
+        </button>
+      </form>
+      
+      {/* Форма для "выхода==" */}
       <div className={styles.shape}>
         <AcmeLogo />
       </div>
