@@ -79,7 +79,6 @@ export async function authenticate(
 ) {
   try {
     await signIn('credentials', {
-      redirect: false,  // ← ДОБАВЬ ЭТО
       email: formData.get('email'),
       password: formData.get('password'),
     });
@@ -94,6 +93,6 @@ export async function authenticate(
     }
     throw error;
   }
-  redirect('/dashboard');
+
 
 }
