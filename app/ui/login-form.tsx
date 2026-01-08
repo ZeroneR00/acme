@@ -1,5 +1,5 @@
 'use client';
- 
+
 import { lusitana } from '@/app/ui/fonts';
 import {
   AtSymbolIcon,
@@ -8,20 +8,47 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
-import { useActionState } from 'react';
-import { authenticate } from '@/app/lib/actions';
-import { useSearchParams } from 'next/navigation';
- 
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 export default function LoginForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
- 
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid credentials.');
+        setLoading(false);
+      } else {
+        // Успешный вход - перенаправляем
+        router.push('/dashboard');
+        router.refresh();
+      }
+    } catch (err) {
+      setError('Something went wrong.');
+      setLoading(false);
+    }
+  }
+
   return (
-    <form action={formAction} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
           Please log in to continue.
@@ -42,11 +69,11 @@ export default function LoginForm() {
                 name="email"
                 placeholder="Enter your email address"
                 required
+                defaultValue="user@nextmail.com"
               />
               <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
-          ываываываываыва
           <div className="mt-4">
             <label
               className="mb-3 mt-5 block text-xs font-medium text-gray-900"
@@ -68,19 +95,19 @@ export default function LoginForm() {
             </div>
           </div>
         </div>
-        <input type="hidden" name="redirectTo" value={callbackUrl} />
-        <Button className="mt-4 w-full" aria-disabled={isPending}>
-          Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+        <Button className="mt-4 w-full" disabled={loading}>
+          {loading ? 'Logging in...' : 'Log in'}{' '}
+          <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
           aria-atomic="true"
         >
-          {errorMessage && (
+          {error && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{errorMessage}</p>
+              <p className="text-sm text-red-500">{error}</p>
             </>
           )}
         </div>
@@ -89,8 +116,9 @@ export default function LoginForm() {
   );
 }
 
-// 'use client';
 
+// 'use client';
+ 
 // import { lusitana } from '@/app/ui/fonts';
 // import {
 //   AtSymbolIcon,
@@ -99,47 +127,20 @@ export default function LoginForm() {
 // } from '@heroicons/react/24/outline';
 // import { ArrowRightIcon } from '@heroicons/react/20/solid';
 // import { Button } from '@/app/ui/button';
-// import { signIn } from 'next-auth/react';
-// import { useRouter } from 'next/navigation';
-// import { useState } from 'react';
-
+// import { useActionState } from 'react';
+// import { authenticate } from '@/app/lib/actions';
+// import { useSearchParams } from 'next/navigation';
+ 
 // export default function LoginForm() {
-//   const [error, setError] = useState('');
-//   const [loading, setLoading] = useState(false);
-//   const router = useRouter();
-
-//   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError('');
-
-//     const formData = new FormData(e.currentTarget);
-//     const email = formData.get('email') as string;
-//     const password = formData.get('password') as string;
-
-//     try {
-//       const result = await signIn('credentials', {
-//         email,
-//         password,
-//         redirect: false,
-//       });
-
-//       if (result?.error) {
-//         setError('Invalid credentials.');
-//         setLoading(false);
-//       } else {
-//         // Успешный вход - перенаправляем
-//         router.push('/dashboard');
-//         router.refresh();
-//       }
-//     } catch (err) {
-//       setError('Something went wrong.');
-//       setLoading(false);
-//     }
-//   }
-
+//   const searchParams = useSearchParams();
+//   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+//   const [errorMessage, formAction, isPending] = useActionState(
+//     authenticate,
+//     undefined,
+//   );
+ 
 //   return (
-//     <form onSubmit={handleSubmit} className="space-y-3">
+//     <form action={formAction} className="space-y-3">
 //       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
 //         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
 //           Please log in to continue.
@@ -160,7 +161,6 @@ export default function LoginForm() {
 //                 name="email"
 //                 placeholder="Enter your email address"
 //                 required
-//                 defaultValue="user@nextmail.com"
 //               />
 //               <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
 //             </div>
@@ -186,19 +186,19 @@ export default function LoginForm() {
 //             </div>
 //           </div>
 //         </div>
-//         <Button className="mt-4 w-full" disabled={loading}>
-//           {loading ? 'Logging in...' : 'Log in'}{' '}
-//           <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+//         <input type="hidden" name="redirectTo" value={callbackUrl} />
+//         <Button className="mt-4 w-full" aria-disabled={isPending}>
+//           Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
 //         </Button>
 //         <div
 //           className="flex h-8 items-end space-x-1"
 //           aria-live="polite"
 //           aria-atomic="true"
 //         >
-//           {error && (
+//           {errorMessage && (
 //             <>
 //               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-//               <p className="text-sm text-red-500">{error}</p>
+//               <p className="text-sm text-red-500">{errorMessage}</p>
 //             </>
 //           )}
 //         </div>

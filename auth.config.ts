@@ -11,12 +11,12 @@ export const authConfig = {
       
       if (isOnDashboard) {
         if (isLoggedIn) return true;
-        return false; // Незалогиненных отправляем на логин
+        return false;
       } else if (isLoggedIn) {
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
       return true;
     },
   },
-  providers: [], // Пока пустой массив
+  providers: [],
 } satisfies NextAuthConfig;

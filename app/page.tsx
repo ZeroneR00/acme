@@ -21,7 +21,7 @@ export default async function Page() {
       </h1>
       {/* ==Форма для "выхода" */}
 
-      <form
+      {/* <form
         action={async () => {
           'use server';
           await signOut({ redirectTo: '/' });
@@ -31,7 +31,7 @@ export default async function Page() {
           <PowerIcon className="w-6" />
           <div>Sign Out</div>
         </button>
-      </form>
+      </form> */}
       
       {/* Форма для "выхода==" */}
       <div className={styles.shape}>
